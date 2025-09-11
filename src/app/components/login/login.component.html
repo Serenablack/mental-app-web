@@ -1,0 +1,67 @@
+<app-container containerClass="centered">
+  <div class="login-container fade-in">
+    <div class="login-card">
+      <div class="login-header">
+        <h1 class="welcome-title">Welcome Back</h1>
+        <p class="welcome-subtitle">Continue your wellness journey</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hidePassword = !hidePassword"
+            type="button"
+          >
+            <mat-icon>{{
+              hidePassword ? "visibility_off" : "visibility"
+            }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            Password is required
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+            Password must be at least 6 characters
+          </mat-error>
+        </mat-form-field>
+
+        <app-primary-button
+          [loading]="loading"
+          [disabled]="!loginForm.valid"
+          buttonClass="login-button"
+        >
+          Sign In
+        </app-primary-button>
+      </form>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <app-primary-button
+        color="accent"
+        icon="login"
+        [loading]="loading"
+        (onClick)="onGoogleSignIn()"
+        buttonClass="google-button"
+      >
+        Continue with Google
+      </app-primary-button>
+
+      <div class="signup-link">
+        <p>
+          New to Mental App?
+          <a (click)="navigateToSignup()" class="link">Create account</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</app-container>

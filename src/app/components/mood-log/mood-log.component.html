@@ -1,0 +1,182 @@
+<div class="mood-log-container">
+  <div class="header-section">
+    <h1 class="page-title">How are you feeling?</h1>
+    <p class="page-subtitle">
+      Select at least 2 emotions that resonate with you right now
+    </p>
+  </div>
+
+  <form [formGroup]="moodForm" (ngSubmit)="onSubmit()" class="mood-form">
+    <!-- Emotion Selection -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <mat-icon>psychology</mat-icon>
+        Your Emotions
+      </h2>
+      <div class="emotions-grid">
+        <div class="emotions-list">
+          <div
+            *ngFor="let emotion of availableEmotions"
+            class="emotion-chip"
+            [class.selected]="selectedEmotions.includes(emotion.key)"
+            (click)="onEmotionToggle(emotion.key)"
+          >
+            <span
+              class="emotion-color"
+              [style.background-color]="'#667eea'"
+            ></span>
+            {{ emotion.label }}
+          </div>
+        </div>
+      </div>
+      <mat-error
+        *ngIf="
+          moodForm.get('emotionKeys')?.hasError('required') &&
+          moodForm.get('emotionKeys')?.touched
+        "
+      >
+        Please select at least 2 emotions
+      </mat-error>
+      <mat-error
+        *ngIf="
+          moodForm.get('emotionKeys')?.hasError('minlength') &&
+          moodForm.get('emotionKeys')?.touched
+        "
+      >
+        Please select at least 2 emotions
+      </mat-error>
+    </div>
+
+    <!-- Environment -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <mat-icon>group</mat-icon>
+        Environment
+      </h2>
+      <mat-radio-group formControlName="environment" class="environment-group">
+        <mat-radio-button value="ALONE">🧘‍♀️ Alone</mat-radio-button>
+        <mat-radio-button value="IN_GROUP">👥 With Others</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <!-- Energy Level -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <mat-icon>energy_savings_leaf</mat-icon>
+        Energy Level
+      </h2>
+      <div class="energy-slider">
+        <mat-slider
+          formControlName="energyLevel"
+          min="1"
+          max="5"
+          step="1"
+          discrete
+          showTickMarks
+        >
+          <input matSliderThumb />
+        </mat-slider>
+
+        <div class="energy-labels">
+          <span
+            *ngFor="let level of energyLevels"
+            class="energy-label"
+            [class.active]="moodForm.get('energyLevel')?.value === level.value"
+          >
+            {{ level.emoji }} {{ level.label }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location (Optional) -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <mat-icon>location_on</mat-icon>
+        Location (Optional)
+      </h2>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Where are you?</mat-label>
+        <input
+          matInput
+          formControlName="location"
+          placeholder="e.g., Home, Office, Park"
+        />
+        <mat-icon matSuffix>location_on</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- Description (Optional) -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <mat-icon>edit_note</mat-icon>
+        What's on your mind? (Optional)
+      </h2>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Share what's on your mind...</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="4"
+          maxlength="5000"
+          placeholder="Describe your feelings, what happened, or anything else you'd like to share..."
+        >
+        </textarea>
+        <mat-hint align="end"
+          >{{ moodForm.get("description")?.value?.length || 0 }}/5000</mat-hint
+        >
+      </mat-form-field>
+
+      <div class="voice-input-section">
+        <button
+          mat-raised-button
+          type="button"
+          [color]="isRecording ? 'warn' : 'accent'"
+          (click)="isRecording ? stopVoiceRecording() : startVoiceRecording()"
+          class="voice-button"
+        >
+          <mat-icon>{{ isRecording ? "mic_off" : "mic" }}</mat-icon>
+          {{ isRecording ? "Stop Recording" : "Voice Input" }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!moodForm.valid || loading"
+        class="submit-button"
+      >
+        <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+        <mat-icon *ngIf="!loading">save</mat-icon>
+        {{ loading ? "Logging Mood..." : "Log My Mood" }}
+      </button>
+    </div>
+  </form>
+
+  <!-- AI Suggestions (shown after submission) -->
+  <div class="ai-suggestions" *ngIf="suggestedActivities.length > 0">
+    <h2 class="suggestions-title">✨ Personalized Activities for You</h2>
+    <div class="activities-grid">
+      <div *ngFor="let activity of suggestedActivities" class="activity-card">
+        <div class="activity-header">
+          <h3>{{ activity.title }}</h3>
+          <span
+            class="activity-duration"
+            *ngIf="activity.estimatedDurationMinutes"
+            >{{ activity.estimatedDurationMinutes }}min</span
+          >
+        </div>
+        <p class="activity-description" *ngIf="activity.description">
+          {{ activity.description }}
+        </p>
+        <div class="activity-category">
+          <mat-chip>{{ activity.category }}</mat-chip>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

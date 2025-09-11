@@ -1,0 +1,207 @@
+<div class="mood-entry-container">
+  <div class="form-header">
+    <h1 class="form-title">
+      <mat-icon class="form-icon">mood</mat-icon>
+      How are you feeling today?
+    </h1>
+    <p class="form-subtitle">Take a moment to check in with yourself</p>
+  </div>
+
+  <form [formGroup]="moodForm" (ngSubmit)="onSubmit()" class="mood-form">
+    <mat-card class="form-card">
+      <mat-card-content>
+        <!-- Emotions Selection -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">psychology</mat-icon>
+            What emotions are you experiencing?
+          </h3>
+          <p class="section-hint">Select all that apply (choose at least 2)</p>
+
+          <div class="emotions-grid">
+            <mat-checkbox
+              *ngFor="let emotion of availableEmotions"
+              [value]="emotion.key"
+              (change)="onEmotionChange($event)"
+              class="emotion-checkbox"
+            >
+              {{ emotion.label }}
+            </mat-checkbox>
+          </div>
+
+          <div class="selected-emotions" *ngIf="selectedEmotions.length > 0">
+            <h4>Selected Emotions:</h4>
+            <div class="emotion-chips">
+              <span
+                class="emotion-chip"
+                *ngFor="let emotion of selectedEmotions"
+              >
+                {{ emotion }}
+                <button
+                  type="button"
+                  class="remove-emotion"
+                  (click)="removeEmotion(emotion)"
+                  aria-label="Remove emotion"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Energy Level -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">energy_savings</mat-icon>
+            How much energy do you have right now?
+          </h3>
+          <p class="section-hint">
+            Rate your current energy level from 1 (very low) to 5 (very high)
+          </p>
+
+          <div class="energy-slider">
+            <mat-slider
+              formControlName="energyLevel"
+              min="1"
+              max="5"
+              step="1"
+              class="energy-slider-control"
+            >
+            </mat-slider>
+            <div class="energy-labels">
+              <span class="energy-label">1 - Very Low</span>
+              <span class="energy-label">5 - Very High</span>
+            </div>
+            <div class="energy-value">
+              Current Level:
+              <strong>{{ moodForm.get("energyLevel")?.value }}/5</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Environment -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">group</mat-icon>
+            What's your comfort environment?
+          </h3>
+
+          <mat-radio-group
+            formControlName="environment"
+            class="environment-options"
+          >
+            <mat-radio-button value="ALONE" class="environment-option">
+              <mat-icon class="option-icon">person</mat-icon>
+              Alone - I prefer to be by myself right now
+            </mat-radio-button>
+            <mat-radio-button value="IN_GROUP" class="environment-option">
+              <mat-icon class="option-icon">group</mat-icon>
+              In a group - I'd like to be around others
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <!-- Location -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">location_on</mat-icon>
+            Where are you right now? (Optional)
+          </h3>
+
+          <mat-form-field class="full-width">
+            <mat-label>Location</mat-label>
+            <input
+              matInput
+              formControlName="location"
+              placeholder="e.g., Home, Office, Park, Coffee Shop"
+              maxlength="100"
+            />
+            <mat-hint>This helps us understand your context</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon class="section-icon">edit</mat-icon>
+            What's on your mind? (Optional)
+          </h3>
+          <p class="section-hint">
+            Share what might have caused these feelings
+          </p>
+
+          <mat-form-field class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              placeholder="Describe what's happening or what you're thinking about..."
+              rows="4"
+              maxlength="5000"
+            >
+            </textarea>
+            <mat-hint
+              >{{ moodForm.get("description")?.value?.length || 0 }}/5000
+              characters</mat-hint
+            >
+          </mat-form-field>
+        </div>
+
+        <!-- Voice Input Option -->
+        <div class="form-section">
+          <mat-checkbox
+            formControlName="isVoiceInput"
+            class="voice-input-checkbox"
+          >
+            <mat-icon class="checkbox-icon">mic</mat-icon>
+            I used voice input for this entry
+          </mat-checkbox>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="form-actions">
+        <button
+          type="button"
+          mat-stroked-button
+          class="cancel-btn"
+          (click)="onCancel()"
+        >
+          <mat-icon>cancel</mat-icon>
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          mat-raised-button
+          color="primary"
+          class="submit-btn"
+          [disabled]="!moodForm.valid || isSubmitting"
+        >
+          <mat-icon *ngIf="!isSubmitting">save</mat-icon>
+          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+          {{ isSubmitting ? "Saving..." : "Save Mood Entry" }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
+
+  <!-- Progress Indicator -->
+  <div class="progress-overlay" *ngIf="isSubmitting">
+    <mat-card class="progress-card">
+      <mat-card-content>
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="60"
+          color="primary"
+        >
+        </mat-progress-spinner>
+        <h3>Saving your mood entry...</h3>
+        <p>
+          We're processing your entry and generating personalized activity
+          suggestions
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

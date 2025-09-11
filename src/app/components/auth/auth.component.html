@@ -1,0 +1,286 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <mat-icon class="auth-icon">psychology</mat-icon>
+      <h1>Mental Health Companion</h1>
+      <p>Sign in to continue your wellness journey</p>
+    </div>
+
+    <mat-tab-group class="auth-tabs">
+      <!-- Login Tab -->
+      <mat-tab label="Sign In" class="login-tab">
+        <div class="tab-content">
+          <form
+            [formGroup]="loginForm"
+            (ngSubmit)="onLogin()"
+            class="auth-form"
+          >
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                required
+              />
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error
+                *ngIf="loginForm.get('email')?.hasError('required')"
+              >
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input
+                matInput
+                [type]="showLoginPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Enter your password"
+                required
+              />
+              <mat-icon
+                matSuffix
+                (click)="toggleLoginPassword()"
+                class="password-toggle"
+              >
+                {{ showLoginPassword ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+              <mat-error
+                *ngIf="loginForm.get('password')?.hasError('required')"
+              >
+                Password is required
+              </mat-error>
+              <mat-error
+                *ngIf="loginForm.get('password')?.hasError('minlength')"
+              >
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-options">
+              <mat-checkbox formControlName="rememberMe">
+                Remember me
+              </mat-checkbox>
+              <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="submit-button"
+              [disabled]="loginForm.invalid || isLoggingIn"
+            >
+              <mat-spinner diameter="20" *ngIf="isLoggingIn"></mat-spinner>
+              {{ isLoggingIn ? 'Signing In...' : 'Sign In' }}
+            </button>
+          </form>
+
+          <mat-divider class="divider">
+            <span>or</span>
+          </mat-divider>
+
+          <button
+            mat-outlined-button
+            class="google-auth-button"
+            (click)="signInWithGoogle()"
+            [disabled]="isLoggingIn"
+          >
+            <img
+              src="assets/google-icon.png"
+              alt="Google"
+              class="google-icon"
+            />
+            Continue with Google
+          </button>
+        </div>
+      </mat-tab>
+
+      <!-- Signup Tab -->
+      <mat-tab label="Sign Up" class="signup-tab">
+        <div class="tab-content">
+          <form
+            [formGroup]="signupForm"
+            (ngSubmit)="onSignup()"
+            class="auth-form"
+          >
+            <div class="name-fields">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>First Name</mat-label>
+                <input
+                  matInput
+                  formControlName="firstName"
+                  placeholder="Enter your first name"
+                  required
+                />
+                <mat-error
+                  *ngIf="signupForm.get('firstName')?.hasError('required')"
+                >
+                  First name is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Last Name</mat-label>
+                <input
+                  matInput
+                  formControlName="lastName"
+                  placeholder="Enter your last name"
+                  required
+                />
+                <mat-error
+                  *ngIf="signupForm.get('lastName')?.hasError('required')"
+                >
+                  Last name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                required
+              />
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error
+                *ngIf="signupForm.get('email')?.hasError('required')"
+              >
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="signupForm.get('email')?.hasError('email')">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input
+                matInput
+                [type]="showSignupPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Create a password"
+                required
+              />
+              <mat-icon
+                matSuffix
+                (click)="toggleSignupPassword()"
+                class="password-toggle"
+              >
+                {{ showSignupPassword ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+              <mat-error
+                *ngIf="signupForm.get('password')?.hasError('required')"
+              >
+                Password is required
+              </mat-error>
+              <mat-error
+                *ngIf="signupForm.get('password')?.hasError('minlength')"
+              >
+                Password must be at least 8 characters
+              </mat-error>
+              <mat-error
+                *ngIf="signupForm.get('password')?.hasError('pattern')"
+              >
+                Password must contain at least one uppercase letter, one
+                lowercase letter, and one number
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirm Password</mat-label>
+              <input
+                matInput
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Confirm your password"
+                required
+              />
+              <mat-icon
+                matSuffix
+                (click)="toggleConfirmPassword()"
+                class="password-toggle"
+              >
+                {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+              <mat-error
+                *ngIf="
+                  signupForm.get('confirmPassword')?.hasError('required')
+                "
+              >
+                Please confirm your password
+              </mat-error>
+              <mat-error
+                *ngIf="
+                  signupForm
+                    .get('confirmPassword')
+                    ?.hasError('passwordMismatch')
+                "
+              >
+                Passwords do not match
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-options">
+              <mat-checkbox formControlName="agreeToTerms" required>
+                I agree to the
+                <a href="#" class="terms-link">Terms of Service</a> and
+                <a href="#" class="terms-link">Privacy Policy</a>
+              </mat-checkbox>
+              <mat-error
+                *ngIf="
+                  signupForm.get('agreeToTerms')?.hasError('required') &&
+                  signupForm.get('agreeToTerms')?.touched
+                "
+              >
+                You must agree to the terms
+              </mat-error>
+            </div>
+
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              class="submit-button"
+              [disabled]="signupForm.invalid || isSigningUp"
+            >
+              <mat-spinner diameter="20" *ngIf="isSigningUp"></mat-spinner>
+              {{ isSigningUp ? 'Creating Account...' : 'Create Account' }}
+            </button>
+          </form>
+
+          <mat-divider class="divider">
+            <span>or</span>
+          </mat-divider>
+
+          <button
+            mat-outlined-button
+            class="google-auth-button"
+            (click)="signUpWithGoogle()"
+            [disabled]="isSigningUp"
+          >
+            <img
+              src="assets/google-icon.png"
+              alt="Google"
+              class="google-icon"
+            />
+            Sign up with Google
+          </button>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+
+
+

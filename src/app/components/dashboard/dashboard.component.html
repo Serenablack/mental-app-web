@@ -1,0 +1,252 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="welcome-section">
+      <h1 class="welcome-title">
+        <mat-icon class="welcome-icon">psychology</mat-icon>
+        Welcome back, {{ userName || "Friend" }}
+      </h1>
+      <p class="welcome-subtitle">
+        How are you feeling today? Let's check in with yourself.
+      </p>
+    </div>
+
+    <div class="quick-stats">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ todayMoodEntries }}</div>
+          <div class="stat-label">Today's Entries</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ completedTasks }}</div>
+          <div class="stat-label">Completed Tasks</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-value">{{ averageEnergy }}/5</div>
+          <div class="stat-label">Energy Level</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="dashboard-content">
+    <!-- Left Column - Mood Summary and Quick Actions -->
+    <div class="left-column">
+      <!-- Current Mood Summary -->
+      <mat-card class="mood-summary-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">mood</mat-icon>
+            Current Mood Summary
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div
+            class="mood-summary-content"
+            *ngIf="latestMoodEntry; else noMoodEntry"
+          >
+            <div class="mood-display">
+              <div class="mood-emotions">
+                <span
+                  class="mood-chip"
+                  *ngFor="let emotion of latestMoodEntry.emotionKeys"
+                >
+                  {{ emotion }}
+                </span>
+              </div>
+              <div class="mood-details">
+                <div class="mood-item">
+                  <mat-icon class="mood-icon">energy_savings</mat-icon>
+                  <span>Energy: {{ latestMoodEntry.energyLevel }}/5</span>
+                </div>
+                <div class="mood-item">
+                  <mat-icon class="mood-icon">location_on</mat-icon>
+                  <span>{{ latestMoodEntry.location || "No location" }}</span>
+                </div>
+                <div class="mood-item">
+                  <mat-icon class="mood-icon">group</mat-icon>
+                  <span>{{ latestMoodEntry.environment }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noMoodEntry>
+            <div class="empty-mood-state">
+              <mat-icon class="empty-icon">sentiment_neutral</mat-icon>
+              <p>No mood entry yet today</p>
+              <p class="empty-hint">
+                Tap the + button to log how you're feeling
+              </p>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Quick Actions -->
+      <mat-card class="quick-actions-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">flash_on</mat-icon>
+            Quick Actions
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="quick-actions-grid">
+            <button
+              mat-stroked-button
+              class="quick-action-btn"
+              (click)="openMoodEntryForm()"
+            >
+              <mat-icon>add</mat-icon>
+              New Entry
+            </button>
+            <button
+              mat-stroked-button
+              class="quick-action-btn"
+              (click)="viewHistory()"
+            >
+              <mat-icon>history</mat-icon>
+              View History
+            </button>
+            <button
+              mat-stroked-button
+              class="quick-action-btn"
+              (click)="viewAnalytics()"
+            >
+              <mat-icon>analytics</mat-icon>
+              Analytics
+            </button>
+            <button
+              mat-stroked-button
+              class="quick-action-btn"
+              (click)="openSettings()"
+            >
+              <mat-icon>settings</mat-icon>
+              Settings
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Column - AI Suggested Tasks -->
+    <div class="right-column">
+      <mat-card class="tasks-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="card-icon">task_alt</mat-icon>
+            AI Suggested Activities
+          </mat-card-title>
+          <mat-card-subtitle>
+            Personalized suggestions based on your mood and energy level
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div
+            class="tasks-content"
+            *ngIf="
+              suggestedActivities && suggestedActivities.length > 0;
+              else noTasks
+            "
+          >
+            <div class="task-list">
+              <div
+                class="task-item"
+                *ngFor="let task of suggestedActivities; trackBy: trackByTaskId"
+              >
+                <mat-checkbox
+                  [checked]="task.isCompleted"
+                  (change)="toggleTaskCompletion(task)"
+                  class="task-checkbox"
+                  [attr.aria-label]="'Mark task as completed: ' + task.title"
+                >
+                </mat-checkbox>
+
+                <div class="task-content" [class.completed]="task.isCompleted">
+                  <div class="task-header">
+                    <h4 class="task-title">{{ task.title }}</h4>
+                    <div class="task-meta">
+                      <span class="task-category">{{ task.category }}</span>
+                      <span
+                        class="task-duration"
+                        *ngIf="task.estimatedDurationMinutes"
+                      >
+                        {{ task.estimatedDurationMinutes }} min
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="task-description" *ngIf="task.description">
+                    {{ task.description }}
+                  </p>
+
+                  <div class="task-footer">
+                    <span class="task-difficulty" *ngIf="task.difficultyLevel">
+                      {{ task.difficultyLevel }}
+                    </span>
+                    <button
+                      mat-icon-button
+                      class="task-action-btn"
+                      (click)="viewTaskDetails(task)"
+                      [attr.aria-label]="'View details for task: ' + task.title"
+                    >
+                      <mat-icon>info</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noTasks>
+            <div class="empty-tasks-state">
+              <mat-icon class="empty-icon">assignment</mat-icon>
+              <h3 class="empty-title">No activities suggested yet</h3>
+              <p class="empty-description">
+                Complete a mood entry to receive personalized activity
+                suggestions from our AI
+              </p>
+              <button
+                mat-raised-button
+                color="primary"
+                class="empty-action-btn"
+                (click)="openMoodEntryForm()"
+              >
+                <mat-icon>add</mat-icon>
+                Log Your Mood
+              </button>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Floating Action Button for New Mood Entry -->
+  <button
+    mat-fab
+    color="primary"
+    class="fab-new-entry"
+    (click)="openMoodEntryForm()"
+    aria-label="Add new mood entry"
+    [matTooltip]="'Log your mood and get AI suggestions'"
+    matTooltipPosition="left"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+
+  <!-- Progress Indicator -->
+  <div class="progress-indicator" *ngIf="isLoading">
+    <mat-progress-spinner mode="indeterminate" diameter="40" color="primary">
+    </mat-progress-spinner>
+    <p>Loading your dashboard...</p>
+  </div>
+</div>

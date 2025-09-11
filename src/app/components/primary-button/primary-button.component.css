@@ -1,0 +1,100 @@
+/* Primary Button Component Styles */
+.primary-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  min-width: 120px;
+  height: 40px;
+  padding: 0 var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.primary-button:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.button-spinner {
+  margin-right: var(--spacing-sm);
+}
+
+.button-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Button variants using CSS variables */
+.primary-button.primary {
+  background-color: var(--primary-600);
+  color: white;
+}
+
+.primary-button.primary:hover {
+  background-color: var(--primary-700);
+}
+
+.primary-button.accent {
+  background-color: var(--accent-500);
+  color: white;
+}
+
+.primary-button.accent:hover {
+  background-color: var(--accent-600);
+}
+
+.primary-button.warn {
+  background-color: var(--error);
+  color: white;
+}
+
+.primary-button.warn:hover {
+  background-color: var(--accent-700);
+}
+
+/* Success and info variants */
+.primary-button.success {
+  background-color: var(--success);
+  color: white;
+}
+
+.primary-button.success:hover {
+  background-color: var(--secondary-600);
+}
+
+.primary-button.info {
+  background-color: var(--info);
+  color: white;
+}
+
+.primary-button.info:hover {
+  background-color: var(--primary-600);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .primary-button {
+    min-width: 100px;
+    height: 36px;
+    padding: 0 var(--spacing-sm);
+    font-size: 13px;
+  }
+}
