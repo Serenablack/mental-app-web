@@ -29,12 +29,12 @@ export const errorInterceptor: HttpInterceptorFn = (
               'Unable to connect to server. Please check your internet connection.';
             break;
           case 401:
-            errorMessage = 'Authentication required. Please log in again.';
+            errorMessage = 'Your session has expired. Please log in again.';
             handleUnauthorized(router, snackBar);
             break;
           case 403:
-            errorMessage =
-              "Access denied. You don't have permission to perform this action.";
+            errorMessage = 'Access denied. Your session may have expired.';
+            handleUnauthorized(router, snackBar);
             break;
           case 404:
             errorMessage =
@@ -59,6 +59,7 @@ function handleUnauthorized(router: Router, snackBar: MatSnackBar): void {
   router.navigate(['/auth']);
   snackBar.open('Session expired. Please log in again.', 'Close', {
     duration: 5000,
+    panelClass: ['error-snackbar'],
   });
 }
 

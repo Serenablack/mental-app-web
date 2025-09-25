@@ -1,0 +1,67 @@
+<div class="error-container">
+  <div class="error-content">
+    <!-- Error Illustration -->
+    <div class="error-illustration">
+      <div class="error-icon">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <div class="error-particles">
+        <div class="particle" *ngFor="let particle of [0,1,2,3,4,5,6,7,8,9]"></div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <h1 class="error-title">Oops! Page Not Found</h1>
+      <p class="error-description">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <p class="error-code">Error 404</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="error-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="goHome()"
+        class="action-button primary-button"
+      >
+        <mat-icon>home</mat-icon>
+        <span>Go to Dashboard</span>
+      </button>
+      
+      <button
+        mat-outlined-button
+        (click)="goBack()"
+        class="action-button secondary-button"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        <span>Go Back</span>
+      </button>
+    </div>
+
+    <!-- Help Text -->
+    <div class="help-text">
+      <p>
+        If you believe this is an error, please contact support or try refreshing the page.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
