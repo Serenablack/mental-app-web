@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { JwtTokenService } from './jwt-token.service';
+import { LocalStorageService } from './local-storage.service';
 import { BaseHttpService } from './base-http.service';
 import { MoodEntry, SuggestedActivity } from '../models/mood-entry.model';
 import { environment } from '../../../environments/environment';
@@ -34,32 +36,39 @@ export class MoodEntryService extends BaseHttpService {
 
   constructor(
     protected override http: HttpClient,
-    protected override jwtTokenService: JwtTokenService
+    protected override jwtTokenService: JwtTokenService,
+    protected override localStorageService: LocalStorageService
   ) {
-    super(http, jwtTokenService);
+    super(http, jwtTokenService, localStorageService);
   }
 
   createMoodEntry(moodEntry: MoodEntryCreateRequest): Observable<MoodEntry> {
-    // TODO: Uncomment when API is ready
-    // return this.post(this.endpoint, moodEntry);
-    const newEntry: MoodEntry = {
-      id: Math.floor(Math.random() * 10000),
-      userId: 1, // Mock user ID
-      emotionKeys: moodEntry.emotionKeys,
-      location: moodEntry.location,
-      environment: moodEntry.environment,
-      description: moodEntry.description,
-      energyLevel: moodEntry.energyLevel,
-      entryDate: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isVoiceInput: moodEntry.isVoiceInput || false,
-      suggestedActivities: [],
+    // Convert frontend request to backend format
+    const backendRequest = {
+      emotionId: 1, // TODO: Map emotionKeys to emotionId
+      notes: moodEntry.description || '',
+      passion: moodEntry.energyLevel,
     };
-    return new Observable((observer) => {
-      observer.next(newEntry);
-      observer.complete();
-    });
+
+    return this.post(this.endpoint, backendRequest).pipe(
+      map((response: any) => {
+        const data = response.data || response; // Handle both ApiResponse and direct object
+        return {
+          id: data.id,
+          userId: data.userId,
+          emotionKeys: [moodEntry.emotionKeys[0] || 'happy'], // Map back to frontend format
+          location: moodEntry.location,
+          environment: moodEntry.environment,
+          description: data.notes,
+          energyLevel: data.passion,
+          entryDate: new Date(data.createdAt),
+          createdAt: new Date(data.createdAt),
+          updatedAt: new Date(data.createdAt),
+          isVoiceInput: moodEntry.isVoiceInput || false,
+          suggestedActivities: [],
+        };
+      })
+    );
   }
 
   updateMoodEntry(
@@ -98,12 +107,25 @@ export class MoodEntryService extends BaseHttpService {
   }
 
   getAllMoodEntries(): Observable<MoodEntry[]> {
-    // TODO: Uncomment when API is ready
-    // return this.get(this.endpoint);
-    return new Observable((observer) => {
-      observer.next(getMockMoodEntries());
-      observer.complete();
-    });
+    return this.get(this.endpoint).pipe(
+      map((response: any) => {
+        const entries = response.data || response; // Handle both ApiResponse and direct array
+        return entries.map((entry: any) => ({
+          id: entry.id,
+          userId: entry.userId,
+          emotionKeys: ['happy'], // TODO: Map emotionId to emotionKeys
+          location: '',
+          environment: 'ALONE' as const,
+          description: entry.notes,
+          energyLevel: entry.passion,
+          entryDate: new Date(entry.createdAt),
+          createdAt: new Date(entry.createdAt),
+          updatedAt: new Date(entry.createdAt),
+          isVoiceInput: false,
+          suggestedActivities: [],
+        }));
+      })
+    );
   }
 
   getTodayMoodEntries(): Observable<MoodEntry[]> {
@@ -155,7 +177,7 @@ export class MoodEntryService extends BaseHttpService {
     // return this.get(`${this.endpoint}/${id}`);
     return new Observable((observer) => {
       const entries = getMockMoodEntries();
-      const entry = entries.find(e => e.id === id);
+      const entry = entries.find((e) => e.id === id);
       if (entry) {
         observer.next(entry);
       } else {
