@@ -5,4 +5,16 @@
     var(--primary-50) 0%,
     var(--secondary-50) 100%
   );
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content.with-header {
+  padding-top: 0; /* Header is sticky, so no padding needed */
 }
