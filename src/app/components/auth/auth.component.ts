@@ -17,6 +17,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -34,7 +36,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDividerModule,
     MatProgressSpinnerModule,
   ],
-    templateUrl: './auth.component.html',
+  templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
 export class AuthComponent implements OnInit, OnDestroy {
@@ -45,13 +47,22 @@ export class AuthComponent implements OnInit, OnDestroy {
   showLoginPassword = false;
   showSignupPassword = false;
   showConfirmPassword = false;
+  lotusPetals = Array(5).fill(0); // 5 petals for the lotus
+  selectedTabIndex = 0;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder, private snackBar: MatSnackBar) {}
+  constructor(
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initializeForms();
+    // Check if user is already authenticated
+    this.authService.checkExistingAuth();
   }
 
   ngOnDestroy(): void {
@@ -110,19 +121,24 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
 
     this.isLoggingIn = true;
+    const { email, password } = this.loginForm.value;
 
-    // TODO: Implement actual login logic
-    setTimeout(() => {
-      this.isLoggingIn = false;
-      this.snackBar.open(
-        'Login functionality will be implemented when backend is ready',
-        'Close',
-        {
-          duration: 3000,
-          panelClass: ['info-snackbar'],
-        }
-      );
-    }, 1000);
+    this.authService
+      .signIn(email, password)
+      .then(() => {
+        this.snackBar.open('Welcome back! 🌟', 'Close', { duration: 3000 });
+        // Navigation is handled by auth service
+      })
+      .catch((error) => {
+        this.snackBar.open(
+          error.message || 'Login failed. Please try again.',
+          'Close',
+          { duration: 5000 }
+        );
+      })
+      .finally(() => {
+        this.isLoggingIn = false;
+      });
   }
 
   onSignup(): void {
@@ -132,43 +148,61 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
 
     this.isSigningUp = true;
+    const { firstName, lastName, email, password } = this.signupForm.value;
 
-    // TODO: Implement actual signup logic
-    setTimeout(() => {
-      this.isSigningUp = false;
-      this.snackBar.open(
-        'Signup functionality will be implemented when backend is ready',
-        'Close',
-        {
-          duration: 3000,
-          panelClass: ['info-snackbar'],
-        }
-      );
-    }, 1000);
+    this.authService
+      .register({
+        username: `${firstName}${lastName}`.toLowerCase(),
+        email,
+        password,
+      })
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Account created successfully! 🎉', 'Close', {
+            duration: 3000,
+          });
+          // Switch to login tab after successful registration
+          this.switchToLogin();
+        },
+        error: (error) => {
+          this.snackBar.open(
+            error.message || 'Registration failed. Please try again.',
+            'Close',
+            { duration: 5000 }
+          );
+        },
+        complete: () => {
+          this.isSigningUp = false;
+        },
+      });
   }
 
   signInWithGoogle(): void {
-    // TODO: Implement Google OAuth
-    this.snackBar.open(
-      'Google OAuth will be implemented when backend is ready',
-      'Close',
-      {
-        duration: 3000,
-        panelClass: ['info-snackbar'],
-      }
-    );
+    this.authService
+      .signInWithGoogle()
+      .then(() => {
+        this.snackBar.open('Welcome! 🎉', 'Close', { duration: 3000 });
+        this.router.navigate(['/dashboard']);
+      })
+      .catch((error) => {
+        this.snackBar.open(error.message || 'Google sign-in failed.', 'Close', {
+          duration: 5000,
+        });
+      });
   }
 
   signUpWithGoogle(): void {
-    // TODO: Implement Google OAuth
-    this.snackBar.open(
-      'Google OAuth will be implemented when backend is ready',
-      'Close',
-      {
-        duration: 3000,
-        panelClass: ['info-snackbar'],
-      }
-    );
+    this.authService
+      .signInWithGoogle()
+      .then(() => {
+        this.snackBar.open('Welcome! 🎉', 'Close', { duration: 3000 });
+        this.router.navigate(['/dashboard']);
+      })
+      .catch((error) => {
+        this.snackBar.open(error.message || 'Google sign-in failed.', 'Close', {
+          duration: 5000,
+        });
+      });
   }
 
   toggleLoginPassword(): void {
@@ -181,5 +215,13 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   toggleConfirmPassword(): void {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  switchToSignup(): void {
+    this.selectedTabIndex = 1;
+  }
+
+  switchToLogin(): void {
+    this.selectedTabIndex = 0;
   }
 }

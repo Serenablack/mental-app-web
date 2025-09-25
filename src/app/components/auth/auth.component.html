@@ -1,12 +1,35 @@
 <div class="auth-container">
+  <!-- Lotus Animation Background -->
+  <div class="lotus-background">
+    <div class="lotus-container">
+      <div
+        class="lotus-petal"
+        *ngFor="let petal of lotusPetals; let i = index"
+        [style]="
+          '--petal-index: ' + i + '; --total-petals: ' + lotusPetals.length
+        "
+      ></div>
+    </div>
+  </div>
+
   <div class="auth-card">
     <div class="auth-header">
-      <mat-icon class="auth-icon">psychology</mat-icon>
-      <h1>Mental Health Companion</h1>
-      <p>Sign in to continue your wellness journey</p>
+      <div class="logo-container">
+        <div class="lotus-logo">
+          <div
+            class="lotus-petal-small"
+            *ngFor="let petal of lotusPetals; let i = index"
+            [style]="
+              '--petal-index: ' + i + '; --total-petals: ' + lotusPetals.length
+            "
+          ></div>
+        </div>
+      </div>
+      <h1>Welcome to Mental Health Companion</h1>
+      <p>Continue your wellness journey with us</p>
     </div>
 
-    <mat-tab-group class="auth-tabs">
+    <mat-tab-group class="auth-tabs" [(selectedIndex)]="selectedTabIndex">
       <!-- Login Tab -->
       <mat-tab label="Sign In" class="login-tab">
         <div class="tab-content">
@@ -25,9 +48,7 @@
                 required
               />
               <mat-icon matSuffix>email</mat-icon>
-              <mat-error
-                *ngIf="loginForm.get('email')?.hasError('required')"
-              >
+              <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
                 Email is required
               </mat-error>
               <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
@@ -49,7 +70,7 @@
                 (click)="toggleLoginPassword()"
                 class="password-toggle"
               >
-                {{ showLoginPassword ? 'visibility_off' : 'visibility' }}
+                {{ showLoginPassword ? "visibility_off" : "visibility" }}
               </mat-icon>
               <mat-error
                 *ngIf="loginForm.get('password')?.hasError('required')"
@@ -78,13 +99,14 @@
               [disabled]="loginForm.invalid || isLoggingIn"
             >
               <mat-spinner diameter="20" *ngIf="isLoggingIn"></mat-spinner>
-              {{ isLoggingIn ? 'Signing In...' : 'Sign In' }}
+              <mat-icon *ngIf="!isLoggingIn">login</mat-icon>
+              <span [hidden]="isLoggingIn">Sign In</span>
             </button>
           </form>
 
-          <mat-divider class="divider">
+          <div class="divider">
             <span>or</span>
-          </mat-divider>
+          </div>
 
           <button
             mat-outlined-button
@@ -92,13 +114,16 @@
             (click)="signInWithGoogle()"
             [disabled]="isLoggingIn"
           >
-            <img
-              src="assets/google-icon.png"
-              alt="Google"
-              class="google-icon"
-            />
+            <mat-icon>login</mat-icon>
             Continue with Google
           </button>
+
+          <div class="signup-link">
+            <p>
+              New to Mental Health Companion?
+              <a (click)="switchToSignup()" class="link">Create account</a>
+            </p>
+          </div>
         </div>
       </mat-tab>
 
@@ -152,9 +177,7 @@
                 required
               />
               <mat-icon matSuffix>email</mat-icon>
-              <mat-error
-                *ngIf="signupForm.get('email')?.hasError('required')"
-              >
+              <mat-error *ngIf="signupForm.get('email')?.hasError('required')">
                 Email is required
               </mat-error>
               <mat-error *ngIf="signupForm.get('email')?.hasError('email')">
@@ -176,7 +199,7 @@
                 (click)="toggleSignupPassword()"
                 class="password-toggle"
               >
-                {{ showSignupPassword ? 'visibility_off' : 'visibility' }}
+                {{ showSignupPassword ? "visibility_off" : "visibility" }}
               </mat-icon>
               <mat-error
                 *ngIf="signupForm.get('password')?.hasError('required')"
@@ -210,12 +233,10 @@
                 (click)="toggleConfirmPassword()"
                 class="password-toggle"
               >
-                {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
+                {{ showConfirmPassword ? "visibility_off" : "visibility" }}
               </mat-icon>
               <mat-error
-                *ngIf="
-                  signupForm.get('confirmPassword')?.hasError('required')
-                "
+                *ngIf="signupForm.get('confirmPassword')?.hasError('required')"
               >
                 Please confirm your password
               </mat-error>
@@ -254,13 +275,14 @@
               [disabled]="signupForm.invalid || isSigningUp"
             >
               <mat-spinner diameter="20" *ngIf="isSigningUp"></mat-spinner>
-              {{ isSigningUp ? 'Creating Account...' : 'Create Account' }}
+              <mat-icon *ngIf="!isSigningUp">person_add</mat-icon>
+              <span [hidden]="isSigningUp">Create Account</span>
             </button>
           </form>
 
-          <mat-divider class="divider">
+          <div class="divider">
             <span>or</span>
-          </mat-divider>
+          </div>
 
           <button
             mat-outlined-button
@@ -268,19 +290,18 @@
             (click)="signUpWithGoogle()"
             [disabled]="isSigningUp"
           >
-            <img
-              src="assets/google-icon.png"
-              alt="Google"
-              class="google-icon"
-            />
+            <mat-icon>login</mat-icon>
             Sign up with Google
           </button>
+
+          <div class="login-link">
+            <p>
+              Already have an account?
+              <a (click)="switchToLogin()" class="link">Sign in</a>
+            </p>
+          </div>
         </div>
       </mat-tab>
     </mat-tab-group>
   </div>
 </div>
-
-
-
-
