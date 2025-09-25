@@ -9,6 +9,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, timeout, retry, map, filter } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { JwtTokenService } from './jwt-token.service';
+import { LocalStorageService } from './local-storage.service';
 
 export interface RequestOptions {
   headers?: HttpHeaders;
@@ -34,7 +35,8 @@ export class BaseHttpService {
 
   constructor(
     protected http: HttpClient,
-    protected jwtTokenService: JwtTokenService
+    protected jwtTokenService: JwtTokenService,
+    protected localStorageService: LocalStorageService
   ) {}
 
   /** GET */
@@ -161,9 +163,16 @@ export class BaseHttpService {
         'Content-Type': 'application/json',
       });
 
-    const token = this.jwtTokenService.getAccessToken();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
+    // Try to get authorization header from local storage first
+    const authHeader = this.localStorageService.getAuthorizationHeader();
+    if (authHeader) {
+      headers = headers.set('Authorization', authHeader);
+    } else {
+      // Fallback to JWT service
+      const token = this.jwtTokenService.getAccessToken();
+      if (token) {
+        headers = headers.set('Authorization', `Bearer ${token}`);
+      }
     }
 
     return {
