@@ -16,36 +16,100 @@
             <mat-icon class="section-icon">psychology</mat-icon>
             What emotions are you experiencing?
           </h3>
-          <p class="section-hint">Select all that apply (choose at least 2)</p>
+          <p class="section-hint">
+            First select a primary emotion, then choose a specific feeling
+          </p>
 
-          <div class="emotions-grid">
-            <mat-checkbox
-              *ngFor="let emotion of availableEmotions"
-              [value]="emotion.key"
-              (change)="onEmotionChange($event)"
-              class="emotion-checkbox"
-            >
-              {{ emotion.label }}
-            </mat-checkbox>
+          <!-- Primary Emotions Selection -->
+          <div
+            class="emotion-selection-container"
+            *ngIf="!selectedPrimaryEmotion"
+          >
+            <h4 class="emotion-category-title">Choose a primary emotion:</h4>
+            <div class="emotion-grid">
+              <button
+                *ngFor="let emotion of primaryEmotions"
+                type="button"
+                class="emotion-card"
+                [class.has-selected-children]="
+                  hasSelectedSubEmotions(emotion.id)
+                "
+                (click)="onPrimaryEmotionChange(emotion)"
+              >
+                <span class="emotion-label">{{ emotion.label }}</span>
+              </button>
+            </div>
           </div>
 
-          <div class="selected-emotions" *ngIf="selectedEmotions.length > 0">
-            <h4>Selected Emotions:</h4>
-            <div class="emotion-chips">
-              <span
-                class="emotion-chip"
-                *ngFor="let emotion of selectedEmotions"
+          <!-- Sub-Emotions Selection -->
+          <div
+            class="emotion-selection-container"
+            *ngIf="selectedPrimaryEmotion"
+          >
+            <div class="emotion-breadcrumb">
+              <button
+                type="button"
+                class="back-button"
+                (click)="goBackToPrimaryEmotions()"
               >
-                {{ emotion }}
+                <mat-icon>arrow_back</mat-icon>
+                Back to primary emotions
+              </button>
+              <span class="selected-primary">
+                Selected: <strong>{{ selectedPrimaryEmotion.label }}</strong>
+              </span>
+            </div>
+
+            <h4 class="emotion-category-title">
+              Choose a specific
+              {{ selectedPrimaryEmotion.label.toLowerCase() }} feeling:
+            </h4>
+            <div class="emotion-grid">
+              <button
+                *ngFor="let emotion of subEmotions"
+                type="button"
+                class="emotion-card sub-emotion"
+                [class.selected]="isEmotionSelected(emotion.id)"
+                (click)="onSubEmotionChange(emotion)"
+              >
+                <span class="emotion-label">{{ emotion.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Selected Emotions Display -->
+          <div
+            class="selected-emotions-display"
+            *ngIf="getSelectedEmotionLabels().length > 0"
+          >
+            <h4 class="selected-title">
+              <mat-icon class="title-icon">check_circle</mat-icon>
+              Selected Emotions ({{ getSelectedEmotionsWithDetails().length }})
+            </h4>
+            <div class="selected-emotions-list">
+              <div
+                *ngFor="let emotion of getSelectedEmotionsWithDetails()"
+                class="selected-emotion-chip"
+              >
+                <div class="emotion-chip-content">
+                  <span class="emotion-chip-label">{{ emotion.label }}</span>
+                  <span
+                    class="emotion-chip-category"
+                    *ngIf="emotion.primaryLabel"
+                  >
+                    {{ emotion.primaryLabel }}
+                  </span>
+                </div>
                 <button
                   type="button"
-                  class="remove-emotion"
-                  (click)="removeEmotion(emotion)"
-                  aria-label="Remove emotion"
+                  class="remove-emotion-btn"
+                  (click)="removeSelectedEmotion(emotion.id)"
+                  [attr.aria-label]="'Remove ' + emotion.label"
+                  [attr.title]="'Remove ' + emotion.label"
                 >
-                  ×
+                  <mat-icon>close</mat-icon>
                 </button>
-              </span>
+              </div>
             </div>
           </div>
         </div>
@@ -62,20 +126,28 @@
 
           <div class="energy-slider">
             <mat-slider
-              formControlName="energyLevel"
               min="1"
               max="5"
               step="1"
+              discrete
+              showTickMarks
               class="energy-slider-control"
             >
+              <input matSliderThumb formControlName="energyLevel" />
             </mat-slider>
             <div class="energy-labels">
               <span class="energy-label">1 - Very Low</span>
+              <span class="energy-label">2 - Low</span>
+              <span class="energy-label">3 - Moderate</span>
+              <span class="energy-label">4 - High</span>
               <span class="energy-label">5 - Very High</span>
             </div>
             <div class="energy-value">
-              Current Level:
-              <strong>{{ moodForm.get("energyLevel")?.value }}/5</strong>
+              <div class="energy-description">
+                {{
+                  getEnergyDescription(moodForm.get("energyLevel")?.value || 3)
+                }}
+              </div>
             </div>
           </div>
         </div>
@@ -88,7 +160,7 @@
           </h3>
 
           <mat-radio-group
-            formControlName="environment"
+            formControlName="comfortEnvironment"
             class="environment-options"
           >
             <mat-radio-button value="ALONE" class="environment-option">
@@ -146,17 +218,29 @@
               characters</mat-hint
             >
           </mat-form-field>
-        </div>
 
-        <!-- Voice Input Option -->
-        <div class="form-section">
-          <mat-checkbox
-            formControlName="isVoiceInput"
-            class="voice-input-checkbox"
-          >
-            <mat-icon class="checkbox-icon">mic</mat-icon>
-            I used voice input for this entry
-          </mat-checkbox>
+          <!-- Voice Input Button -->
+          <div class="voice-input-actions">
+            <button
+              type="button"
+              mat-stroked-button
+              color="accent"
+              class="voice-input-btn"
+              [class.recording]="isRecording"
+              (click)="
+                isRecording ? stopVoiceRecording() : startVoiceRecording()
+              "
+            >
+              <mat-icon>{{ isRecording ? "mic" : "mic_none" }}</mat-icon>
+              {{ isRecording ? "Stop Voice Input" : "Use Voice Input" }}
+            </button>
+            <span class="voice-hint" *ngIf="isRecording">
+              <mat-icon class="recording-indicator"
+                >fiber_manual_record</mat-icon
+              >
+              Recording... Speak now
+            </span>
+          </div>
         </div>
       </mat-card-content>
 
