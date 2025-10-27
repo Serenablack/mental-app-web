@@ -39,10 +39,11 @@
 
 .welcome-subtitle {
   font-size: 1.25rem;
-  color: var(--neutral-600);
+  color: var(--neutral-800);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 /* Quick Stats */
@@ -166,7 +167,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  color: var(--neutral-700);
+  color: var(--neutral-800);
+  font-weight: 500;
 }
 
 .mood-icon {
@@ -181,12 +183,12 @@
 .empty-tasks-state {
   text-align: center;
   padding: var(--spacing-2xl);
-  color: var(--neutral-500);
+  color: var(--neutral-700);
 }
 
 .empty-icon {
   font-size: 4rem;
-  color: var(--neutral-300);
+  color: var(--neutral-400);
   margin-bottom: var(--spacing-lg);
   width: 4rem;
   height: 4rem;
@@ -194,21 +196,24 @@
 
 .empty-title {
   font-size: 1.5rem;
-  color: var(--neutral-600);
+  color: var(--neutral-800);
   margin-bottom: var(--spacing-md);
+  font-weight: 600;
 }
 
 .empty-description {
-  color: var(--neutral-500);
+  color: var(--neutral-700);
   max-width: 400px;
   margin: 0 auto var(--spacing-lg);
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .empty-hint {
   font-size: 0.875rem;
-  color: var(--neutral-400);
+  color: var(--neutral-600);
   font-style: italic;
+  font-weight: 500;
 }
 
 .empty-action-btn {
@@ -239,8 +244,11 @@
   gap: var(--spacing-md);
 }
 
+.quick-actions-icon {
+  border: 2px;
+}
+
 .quick-action-btn {
-  padding: var(--spacing-lg);
   border-radius: var(--radius-lg);
   border: 2px solid var(--primary-200);
   color: var(--primary-700);
@@ -382,6 +390,61 @@
 
 .task-action-btn:hover {
   color: var(--primary-600);
+}
+
+.task-list-simple {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.task-checkbox-simple {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--neutral-900);
+  transition: all var(--transition-fast);
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  min-height: auto;
+  height: auto;
+}
+
+.task-checkbox-simple ::ng-deep .mdc-label {
+  line-height: 1.5;
+  padding: 0;
+  margin: 0;
+}
+
+.task-checkbox-simple.completed {
+  color: var(--neutral-500);
+  text-decoration: line-through;
+}
+
+.task-checkbox-simple:hover {
+  background-color: var(--primary-50);
+  border-radius: var(--radius-md);
+}
+
+.view-all-btn {
+  width: 100%;
+  margin-top: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  font-weight: 600;
+  padding: var(--spacing-md);
+}
+
+.view-all-btn mat-icon {
+  transition: transform var(--transition-fast);
+}
+
+.view-all-btn:hover mat-icon {
+  transform: translateX(4px);
 }
 
 /* Floating Action Button */
