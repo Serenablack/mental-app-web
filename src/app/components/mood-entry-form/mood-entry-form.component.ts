@@ -55,10 +55,9 @@ export class MoodEntryFormComponent implements OnInit {
   entryId?: number;
   isRecording: boolean = false;
   recognition: any;
-  // Track which primary emotion each sub-emotion belongs to
   private emotionParentMap: Map<number, number> = new Map();
-  // Store all loaded sub-emotions to maintain selections across navigation
   private allLoadedSubEmotions: Map<number, any> = new Map();
+  energyLevelValue: number = 3;
 
   constructor(
     private fb: FormBuilder,
@@ -77,6 +76,16 @@ export class MoodEntryFormComponent implements OnInit {
     this.checkEditMode();
     this.setupFormListeners();
     this.initializeVoiceRecognition();
+
+    this.energyLevelValue = this.moodForm.get('energyLevel')?.value || 3;
+
+    this.moodForm.get('energyLevel')?.valueChanges.subscribe((value) => {
+      if (value !== null && value !== undefined) {
+        this.energyLevelValue = value;
+      }
+    });
+
+    this.cdr.detectChanges();
   }
 
   /**
@@ -84,16 +93,15 @@ export class MoodEntryFormComponent implements OnInit {
    */
   createForm(): FormGroup {
     return this.fb.group({
-      emotionIds: [[], [Validators.required, Validators.minLength(1)]], // Multiple emotions as Set<Long>
+      emotionIds: [[], [Validators.required, Validators.minLength(1)]],
       energyLevel: [
-        3, // Default to 3 (moderate energy) on 1-5 scale to match backend
+        3,
         [Validators.required, Validators.min(1), Validators.max(5)],
       ],
-      comfortEnvironment: ['ALONE', Validators.required], // Match backend field name
+      comfortEnvironment: ['ALONE', Validators.required],
       location: ['', Validators.maxLength(255)],
-      description: ['', Validators.maxLength(5000)], // Match backend validation
-      passion: [''], // Optional passion field from backend
-      isVoiceInput: [false], // Track if voice input was used
+      passion: [''],
+      isVoiceInput: [false],
     });
   }
 
@@ -101,13 +109,11 @@ export class MoodEntryFormComponent implements OnInit {
    * Load available emotions
    */
   loadEmotions(): void {
-    console.log('Loading primary emotions from API...');
     this.emotionService.getPrimaryEmotions().subscribe({
       next: (emotions) => {
-        console.log('Received primary emotions in component:', emotions);
         this.primaryEmotions = emotions;
-        this.availableEmotions = emotions; // Initially show primary emotions
-        console.log('Primary emotions set to:', this.primaryEmotions);
+        this.availableEmotions = emotions;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading primary emotions:', error);
@@ -120,7 +126,6 @@ export class MoodEntryFormComponent implements OnInit {
     });
   }
 
-  // Load sub-emotions when a primary emotion is selected
   loadSubEmotions(primaryEmotion: any): void {
     if (!primaryEmotion || !primaryEmotion.key) {
       this.subEmotions = [];
@@ -129,30 +134,18 @@ export class MoodEntryFormComponent implements OnInit {
       return;
     }
 
-    console.log(`Loading sub-emotions for ${primaryEmotion.label}...`);
-
-    // Set immediately to prevent double-click bug
     this.selectedPrimaryEmotion = primaryEmotion;
 
     this.emotionService.getSubEmotions(primaryEmotion.key).subscribe({
       next: (subEmotions) => {
-        console.log(
-          `Received sub-emotions for ${primaryEmotion.label}:`,
-          subEmotions
-        );
         this.subEmotions = subEmotions;
         this.availableEmotions = subEmotions;
 
-        // Track parent-child relationships and store all sub-emotions
         subEmotions.forEach((subEmotion) => {
           this.emotionParentMap.set(subEmotion.id, primaryEmotion.id);
           this.allLoadedSubEmotions.set(subEmotion.id, subEmotion);
         });
 
-        console.log('Sub-emotions set to:', this.subEmotions);
-        console.log('All loaded sub-emotions:', this.allLoadedSubEmotions);
-
-        // Trigger change detection to update the view
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -160,7 +153,7 @@ export class MoodEntryFormComponent implements OnInit {
           `Error loading sub-emotions for ${primaryEmotion.label}:`,
           error
         );
-        this.selectedPrimaryEmotion = null; // Reset on error
+        this.selectedPrimaryEmotion = null;
         this.snackBar.open(
           'Failed to load sub-emotions. Please try again.',
           'Close',
@@ -170,30 +163,51 @@ export class MoodEntryFormComponent implements OnInit {
     });
   }
 
-  // Handle primary emotion selection
   onPrimaryEmotionChange(emotion: any): void {
-    console.log('Primary emotion selected:', emotion);
     this.loadSubEmotions(emotion);
   }
 
-  // Check if a primary emotion has selected sub-emotions
+  onEnergyLevelChange(value: number | null): void {
+    if (value !== null && value !== undefined) {
+      const energyControl = this.moodForm.get('energyLevel');
+      if (energyControl) {
+        energyControl.setValue(value, { emitEvent: true, onlySelf: false });
+        energyControl.markAsTouched();
+        // Force change detection
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  onEnergyLevelSliderChange(value: number | null): void {
+    if (value !== null && value !== undefined) {
+      // Update the component property
+      this.energyLevelValue = value;
+
+      // Update the form control
+      const energyControl = this.moodForm.get('energyLevel');
+      if (energyControl) {
+        energyControl.setValue(value, { emitEvent: true, onlySelf: false });
+        energyControl.markAsTouched();
+        // Force change detection
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
   hasSelectedSubEmotions(primaryEmotionId: number): boolean {
     const selectedIds = this.moodForm.get('emotionIds')?.value || [];
     if (selectedIds.length === 0) return false;
 
-    // Check if any selected emotion is a child of this primary emotion
     return selectedIds.some((id: number) => {
       const parentId = this.emotionParentMap.get(id);
       return parentId === primaryEmotionId;
     });
   }
 
-  // Handle sub-emotion selection
   onSubEmotionChange(emotion: any): void {
-    console.log('Sub-emotion selected:', emotion);
     const currentEmotions = this.moodForm.get('emotionIds')?.value || [];
 
-    // Toggle emotion selection
     const index = currentEmotions.indexOf(emotion.id);
     if (index > -1) {
       currentEmotions.splice(index, 1);
@@ -204,25 +218,21 @@ export class MoodEntryFormComponent implements OnInit {
     this.moodForm.patchValue({ emotionIds: currentEmotions });
   }
 
-  // Check if emotion is selected
   isEmotionSelected(emotionId: number): boolean {
     const currentEmotions = this.moodForm.get('emotionIds')?.value || [];
     return currentEmotions.includes(emotionId);
   }
 
-  // Go back to primary emotions
   goBackToPrimaryEmotions(): void {
     this.availableEmotions = this.primaryEmotions;
     this.subEmotions = [];
     this.selectedPrimaryEmotion = null;
   }
 
-  // Get the labels of selected emotions
   getSelectedEmotionLabels(): string[] {
     return this.getSelectedEmotionsWithDetails().map((e) => e.label);
   }
 
-  // Get selected emotions with full details for display
   getSelectedEmotionsWithDetails(): Array<{
     id: number;
     label: string;
@@ -238,10 +248,8 @@ export class MoodEntryFormComponent implements OnInit {
     }> = [];
 
     selectedIds.forEach((id: number) => {
-      // First check in all loaded sub-emotions (persists across navigation)
       const subEmotion = this.allLoadedSubEmotions.get(id);
       if (subEmotion) {
-        // Get the primary emotion label for this sub-emotion
         const parentId = this.emotionParentMap.get(id);
         const parentEmotion = this.primaryEmotions.find(
           (e) => e.id === parentId
@@ -255,7 +263,6 @@ export class MoodEntryFormComponent implements OnInit {
         return;
       }
 
-      // Check in primary emotions
       const primaryEmotion = this.primaryEmotions.find((e) => e.id === id);
       if (primaryEmotion) {
         emotions.push({
@@ -268,14 +275,10 @@ export class MoodEntryFormComponent implements OnInit {
     return emotions;
   }
 
-  // Remove selected emotion
   removeSelectedEmotion(emotionId: number): void {
     const currentEmotions = this.moodForm.get('emotionIds')?.value || [];
     const filtered = currentEmotions.filter((id: number) => id !== emotionId);
     this.moodForm.patchValue({ emotionIds: filtered });
-
-    // If we removed the last sub-emotion of a primary, we might want to stay on that view
-    // or go back to primary emotions - for now, staying on current view
   }
 
   /**
@@ -336,7 +339,6 @@ export class MoodEntryFormComponent implements OnInit {
    */
   loadExistingEntry(): void {
     if (this.entryId) {
-      // For now, using mock data
       this.moodEntryService
         .getMoodEntryById(this.entryId)
         .subscribe((existingEntry) => {
@@ -406,9 +408,12 @@ export class MoodEntryFormComponent implements OnInit {
   onSubmit(): void {
     if (this.moodForm.valid) {
       this.isSubmitting = true;
+      console.log(
+        'Energy level value:',
+        this.moodForm.get('energyLevel')?.value
+      );
 
       const formValue = this.moodForm.value;
-      console.log(formValue);
       const moodEntry: Partial<MoodEntry> = {
         ...formValue,
         entryDate: new Date(),
@@ -438,17 +443,14 @@ export class MoodEntryFormComponent implements OnInit {
    * Create new mood entry
    */
   createMoodEntry(formData: any): void {
-    // Convert form data to backend API format matching MoodEntryCreateRequest
     const moodEntryRequest = {
-      emotionIds: formData.emotionIds || [], // Set<Long>
-      energyLevel: formData.energyLevel, // 1-5
-      comfortEnvironment: formData.comfortEnvironment, // ALONE or IN_GROUP
+      emotionIds: formData.emotionIds || [],
+      energyLevel: formData.energyLevel,
+      comfortEnvironment: formData.comfortEnvironment,
       location: formData.location || '',
       description: formData.description || '',
-      passion: formData.passion || '', // Optional passion field
+      passion: formData.passion || '',
     };
-
-    console.log('Creating mood entry with request:', moodEntryRequest);
 
     this.moodEntryService.createMoodEntry(moodEntryRequest).subscribe({
       next: (response) => {
@@ -458,10 +460,8 @@ export class MoodEntryFormComponent implements OnInit {
           panelClass: ['success-snackbar'],
         });
 
-        // Clear the form after successful submission
         this.resetForm();
 
-        // Navigate back to dashboard
         setTimeout(() => {
           this.router.navigate(['/dashboard']);
         }, 1500);
@@ -523,7 +523,6 @@ export class MoodEntryFormComponent implements OnInit {
    * Update existing mood entry
    */
   updateMoodEntry(entry: Partial<MoodEntry>): void {
-    // For now, using mock data
     setTimeout(() => {
       this.isSubmitting = false;
       this.snackBar.open('Mood entry updated successfully!', 'Close', {
@@ -531,7 +530,6 @@ export class MoodEntryFormComponent implements OnInit {
         panelClass: ['success-snackbar'],
       });
 
-      // Navigate back to dashboard
       setTimeout(() => {
         this.router.navigate(['/dashboard']);
       }, 1500);

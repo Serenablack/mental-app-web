@@ -1,38 +1,66 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { JwtTokenService } from './jwt-token.service';
 import { LocalStorageService } from './local-storage.service';
 import { BaseHttpService } from './base-http.service';
 import { MoodEntry, SuggestedActivity } from '../models/mood-entry.model';
 import { environment } from '../../../environments/environment';
-import {
-  getMockMoodEntries,
-  getMockTodayMoodEntries,
-  getMockMoodStatistics,
-} from '../../data/mock-data';
+// Removed mock data imports - using backend APIs only
 
+// Backend API DTOs - matching MoodEntryCreateRequest.java
 export interface MoodEntryCreateRequest {
-  emotionKeys: string[];
+  emotionIds: number[];
+  energyLevel: number;
+  comfortEnvironment: string;
   location?: string;
-  environment: 'ALONE' | 'IN_GROUP';
+  description?: string;
+  passion?: string;
+}
+
+export interface MoodEntryResponse {
+  id: number;
+  userId: number;
+  username: string;
+  location?: string;
+  comfortEnvironment: string;
   description?: string;
   energyLevel: number;
-  isVoiceInput?: boolean;
+  passion?: string;
+  emotions: EmotionResponse[];
+  suggestedActivities: SuggestedActivityResponse[];
+  createdAt: string;
+  updatedAt: string;
+  isFromToday: boolean;
+}
+
+export interface EmotionResponse {
+  id: number;
+  key: string;
+  label: string;
+  parentKey?: string;
+}
+
+export interface SuggestedActivityResponse {
+  id: number;
+  activityDescription: string;
+  isCompleted: boolean;
+  createdAt: string;
 }
 
 export interface MoodStatistics {
+  totalEntries: number;
   todayEntries: number;
-  averageEnergyLevelWeek: number;
-  averageEnergyLevelMonth: number;
+  averageEnergy: number;
+  weeklyEntries: number;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class MoodEntryService extends BaseHttpService {
-  private readonly endpoint = 'mood-entries';
+  private readonly API_URL = `${environment.apiUrl}/mood-entries`;
 
   constructor(
     protected override http: HttpClient,
@@ -42,157 +70,255 @@ export class MoodEntryService extends BaseHttpService {
     super(http, jwtTokenService, localStorageService);
   }
 
-  createMoodEntry(moodEntry: MoodEntryCreateRequest): Observable<MoodEntry> {
-    // Convert frontend request to backend format
-    const backendRequest = {
-      emotionId: 1, // TODO: Map emotionKeys to emotionId
-      notes: moodEntry.description || '',
-      passion: moodEntry.energyLevel,
-    };
-
-    return this.post(this.endpoint, backendRequest).pipe(
-      map((response: any) => {
-        const data = response.data || response; // Handle both ApiResponse and direct object
-        return {
-          id: data.id,
-          userId: data.userId,
-          emotionKeys: [moodEntry.emotionKeys[0] || 'happy'], // Map back to frontend format
-          location: moodEntry.location,
-          environment: moodEntry.environment,
-          description: data.notes,
-          energyLevel: data.passion,
-          entryDate: new Date(data.createdAt),
-          createdAt: new Date(data.createdAt),
-          updatedAt: new Date(data.createdAt),
-          isVoiceInput: moodEntry.isVoiceInput || false,
-          suggestedActivities: [],
-        };
+  createMoodEntry(
+    moodEntry: MoodEntryCreateRequest
+  ): Observable<MoodEntryResponse> {
+    return this.http
+      .post<MoodEntryResponse>(this.API_URL, moodEntry, {
+        headers: this.getAuthHeaders(),
       })
-    );
+      .pipe(
+        map((response: MoodEntryResponse) => {
+          console.log('Received mood entry response from backend:', response);
+          return response;
+        }),
+        catchError((error) => {
+          console.error('Error creating mood entry:', error);
+          return throwError(() => ({
+            message: 'Failed to create mood entry',
+            details: error.error?.message || error.message,
+            status: error.status,
+          }));
+        })
+      );
   }
 
   updateMoodEntry(
     id: number,
     moodEntry: MoodEntryCreateRequest
-  ): Observable<MoodEntry> {
-    // TODO: Uncomment when API is ready
-    // return this.put(`${this.endpoint}/${id}`, moodEntry);
-    const updatedEntry: MoodEntry = {
-      id,
-      userId: 1, // Mock user ID
-      emotionKeys: moodEntry.emotionKeys,
-      location: moodEntry.location,
-      environment: moodEntry.environment,
-      description: moodEntry.description,
-      energyLevel: moodEntry.energyLevel,
-      entryDate: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isVoiceInput: moodEntry.isVoiceInput || false,
-      suggestedActivities: [],
-    };
-    return new Observable((observer) => {
-      observer.next(updatedEntry);
-      observer.complete();
-    });
+  ): Observable<MoodEntryResponse> {
+    return this.http
+      .put<MoodEntryResponse>(`${this.API_URL}/${id}`, moodEntry, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        map((response: MoodEntryResponse) => {
+          console.log('Updated mood entry response:', response);
+          return response;
+        }),
+        catchError((error) => {
+          console.error('Error updating mood entry:', error);
+          return throwError(() => ({
+            message: 'Failed to update mood entry',
+            details: error.error?.message || error.message,
+            status: error.status,
+          }));
+        })
+      );
   }
 
   deleteMoodEntry(id: number): Observable<void> {
-    // TODO: Uncomment when API is ready
-    // return this.delete(`${this.endpoint}/${id}`);
-    return new Observable((observer) => {
-      observer.next();
-      observer.complete();
-    });
+    return this.http
+      .delete<void>(`${this.API_URL}/${id}`, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        catchError((error) => {
+          console.error('Error deleting mood entry:', error);
+          return throwError(() => ({
+            message: 'Failed to delete mood entry',
+            details: error.error?.message || error.message,
+            status: error.status,
+          }));
+        })
+      );
   }
 
-  getAllMoodEntries(): Observable<MoodEntry[]> {
-    return this.get(this.endpoint).pipe(
-      map((response: any) => {
-        const entries = response.data || response; // Handle both ApiResponse and direct array
-        return entries.map((entry: any) => ({
-          id: entry.id,
-          userId: entry.userId,
-          emotionKeys: ['happy'], // TODO: Map emotionId to emotionKeys
-          location: '',
-          environment: 'ALONE' as const,
-          description: entry.notes,
-          energyLevel: entry.passion,
-          entryDate: new Date(entry.createdAt),
-          createdAt: new Date(entry.createdAt),
-          updatedAt: new Date(entry.createdAt),
-          isVoiceInput: false,
-          suggestedActivities: [],
-        }));
+  getMoodEntriesByDate(date: Date): Observable<MoodEntry[]> {
+    const dateString = date.toISOString();
+
+    return this.http
+      .get<any>(this.API_URL, {
+        headers: this.getAuthHeaders(),
+        params: { date: dateString },
       })
-    );
+      .pipe(
+        map((response: any) => {
+          let moodEntriesData: MoodEntryResponse[];
+          if (Array.isArray(response)) {
+            moodEntriesData = response;
+          } else if (response && Array.isArray(response.data)) {
+            moodEntriesData = response.data;
+          } else if (response && Array.isArray(response.moodEntries)) {
+            moodEntriesData = response.moodEntries;
+          } else if (
+            response &&
+            response.content &&
+            Array.isArray(response.content)
+          ) {
+            moodEntriesData = response.content;
+          } else {
+            console.warn(
+              'Unexpected mood entries response structure:',
+              response
+            );
+            moodEntriesData = [];
+          }
+
+          return moodEntriesData.map((response) =>
+            this.mapBackendToFrontend(response)
+          );
+        }),
+        catchError((error) => {
+          console.error('Error fetching mood entries:', error);
+          if (error.status === 401) {
+            this.localStorageService.clearAuthData();
+            return throwError(() => ({
+              message: 'Authentication required',
+              details: 'Please log in again',
+              status: 401,
+            }));
+          }
+          return throwError(() => ({
+            message: 'Failed to fetch mood entries',
+            details: error.error?.message || error.message,
+            status: error.status,
+          }));
+        })
+      );
   }
 
   getTodayMoodEntries(): Observable<MoodEntry[]> {
-    // TODO: Uncomment when API is ready
-    // return this.get(`${this.endpoint}/today`);
-    return new Observable((observer) => {
-      observer.next(getMockTodayMoodEntries());
-      observer.complete();
-    });
+    return this.getMoodEntriesByDate(new Date());
+  }
+
+  getAllMoodEntries(): Observable<MoodEntry[]> {
+    return this.getTodayMoodEntries();
+  }
+
+  // Helper method to map backend response to frontend model
+  private mapBackendToFrontend(response: MoodEntryResponse): MoodEntry {
+    return {
+      id: response.id,
+      userId: response.userId,
+      emotionKeys: response.emotions.map((e) => e.key), // Map emotion keys from emotions array
+      location: response.location || '',
+      environment: response.comfortEnvironment as 'ALONE' | 'IN_GROUP',
+      description: response.description || '',
+      energyLevel: response.energyLevel,
+      entryDate: new Date(response.createdAt),
+      createdAt: new Date(response.createdAt),
+      updatedAt: new Date(response.updatedAt),
+      isVoiceInput: false,
+      suggestedActivities: response.suggestedActivities.map((sa) => ({
+        id: sa.id,
+        userId: response.userId,
+        moodEntryId: response.id,
+        title: sa.activityDescription,
+        description: sa.activityDescription,
+        category: 'GENERAL',
+        estimatedDurationMinutes: 15,
+        difficultyLevel: 'EASY',
+        isCompleted: sa.isCompleted,
+        completedAt: sa.isCompleted ? new Date(sa.createdAt) : undefined,
+        suggestedDate: new Date(sa.createdAt),
+        createdAt: new Date(sa.createdAt),
+        updatedAt: new Date(sa.createdAt),
+      })),
+    };
+  }
+
+  private getAuthHeaders() {
+    const token = this.localStorageService.getToken();
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
   }
 
   getEditableMoodEntries(): Observable<MoodEntry[]> {
-    // TODO: Uncomment when API is ready
-    // return this.get(`${this.endpoint}/editable`);
-    return new Observable((observer) => {
-      observer.next(getMockMoodEntries());
-      observer.complete();
-    });
-  }
-
-  getMoodEntriesByDate(date: string): Observable<MoodEntry[]> {
-    // TODO: Uncomment when API is ready
-    // return this.get(`${this.endpoint}/date/${date}`);
-    return new Observable((observer) => {
-      observer.next(getMockMoodEntries());
-      observer.complete();
-    });
+    return this.getTodayMoodEntries().pipe(
+      catchError((error) => {
+        console.error('Error fetching editable mood entries:', error);
+        return of([]);
+      })
+    );
   }
 
   getMoodEntriesInRange(
     startDate: string,
     endDate: string
   ): Observable<MoodEntry[]> {
-    // TODO: Uncomment when API is ready
-    // return this.http.get<MoodEntry[]>(`${this.apiUrl}/range`, {
-    //   params: { startDate, endDate },
-    // });
-    // For now using mock data - uncomment when API is ready
-    // const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
-    // return this.http.get<MoodEntry[]>(`${this.apiUrl}/range`, { params });
-    return new Observable((observer) => {
-      observer.next(getMockMoodEntries());
-      observer.complete();
-    });
+    return this.getAllMoodEntries().pipe(
+      map((allEntries) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return allEntries.filter((entry) => {
+          const entryDate = new Date(entry.entryDate);
+          return entryDate >= start && entryDate <= end;
+        });
+      }),
+      catchError((error) => {
+        console.error('Error fetching mood entries in range:', error);
+        return of([]);
+      })
+    );
   }
 
   getMoodEntryById(id: number): Observable<MoodEntry> {
-    // TODO: Uncomment when API is ready
-    // return this.get(`${this.endpoint}/${id}`);
-    return new Observable((observer) => {
-      const entries = getMockMoodEntries();
-      const entry = entries.find((e) => e.id === id);
-      if (entry) {
-        observer.next(entry);
-      } else {
-        observer.error(new Error(`Mood entry with id ${id} not found`));
-      }
-      observer.complete();
-    });
+    return this.getAllMoodEntries().pipe(
+      map((allEntries) => {
+        const entry = allEntries.find((e) => e.id === id);
+        if (!entry) {
+          throw new Error(`Mood entry with id ${id} not found`);
+        }
+        return entry;
+      }),
+      catchError((error) => {
+        console.error('Error fetching mood entry by ID:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getMoodStatistics(): Observable<MoodStatistics> {
-    // TODO: Uncomment when API is ready
-    // return this.get(`${this.endpoint}/statistics`);
-    return new Observable((observer) => {
-      observer.next(getMockMoodStatistics());
-      observer.complete();
-    });
+    return this.getAllMoodEntries().pipe(
+      map((allEntries) => {
+        const today = new Date();
+        const todayEntries = allEntries.filter((entry) => {
+          const entryDate = new Date(entry.entryDate);
+          return entryDate.toDateString() === today.toDateString();
+        });
+
+        const totalEntries = allEntries.length;
+        const todayCount = todayEntries.length;
+        const averageEnergy =
+          todayEntries.length > 0
+            ? todayEntries.reduce((sum, entry) => sum + entry.energyLevel, 0) /
+              todayEntries.length
+            : 0;
+
+        return {
+          totalEntries,
+          todayEntries: todayCount,
+          averageEnergy: Math.round(averageEnergy),
+          weeklyEntries: allEntries.filter((entry) => {
+            const entryDate = new Date(entry.entryDate);
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return entryDate >= weekAgo;
+          }).length,
+        };
+      }),
+      catchError((error) => {
+        console.error('Error calculating mood statistics:', error);
+        return of({
+          totalEntries: 0,
+          todayEntries: 0,
+          averageEnergy: 0,
+          weeklyEntries: 0,
+        });
+      })
+    );
   }
 }

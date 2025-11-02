@@ -133,7 +133,11 @@
               showTickMarks
               class="energy-slider-control"
             >
-              <input matSliderThumb formControlName="energyLevel" />
+              <input
+                matSliderThumb
+                [value]="energyLevelValue"
+                (valueChange)="onEnergyLevelSliderChange($event)"
+              />
             </mat-slider>
             <div class="energy-labels">
               <span class="energy-label">1 - Very Low</span>
@@ -144,9 +148,7 @@
             </div>
             <div class="energy-value">
               <div class="energy-description">
-                {{
-                  getEnergyDescription(moodForm.get("energyLevel")?.value || 3)
-                }}
+                {{ getEnergyDescription(moodForm.get("energyLevel")?.value) }}
               </div>
             </div>
           </div>
