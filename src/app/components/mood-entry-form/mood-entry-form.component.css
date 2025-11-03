@@ -907,6 +907,13 @@ mat-form-field {
   }
 }
 
+.spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .mood-entry-container *,

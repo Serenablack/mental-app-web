@@ -276,12 +276,15 @@
   <div class="progress-overlay" *ngIf="isSubmitting">
     <mat-card class="progress-card">
       <mat-card-content>
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="60"
-          color="primary"
-        >
-        </mat-progress-spinner>
+        <div class="spinner-wrapper">
+          <mat-progress-spinner
+            mode="indeterminate"
+            diameter="60"
+            color="primary"
+          >
+          </mat-progress-spinner>
+        </div>
+
         <h3>Saving your mood entry...</h3>
         <p>
           We're processing your entry and generating personalized activity
