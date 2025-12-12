@@ -1,168 +1,122 @@
-/* Auth Component Styles */
+/* Auth Component - Enhanced Styles with Reusable Container */
 .auth-container {
-  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--primary-600) 0%,
-    var(--primary-800) 100%
-  );
-  padding: var(--spacing-lg);
-  overflow: hidden;
-}
-
-/* Lotus Background Animation */
-.lotus-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.lotus-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 300px;
-  animation: lotusFloat 6s ease-in-out infinite;
-}
-
-.lotus-petal {
-  position: absolute;
-  width: 60px;
-  height: 120px;
-  background: linear-gradient(45deg, var(--primary-500), var(--primary-600));
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  transform-origin: center bottom;
-  animation: petalGrow 3s ease-in-out infinite;
-  animation-delay: calc(var(--petal-index) * 0.2s);
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
-}
-
-.lotus-petal:nth-child(1) {
-  transform: rotate(0deg) translateY(-50px);
-}
-.lotus-petal:nth-child(2) {
-  transform: rotate(72deg) translateY(-50px);
-}
-.lotus-petal:nth-child(3) {
-  transform: rotate(144deg) translateY(-50px);
-}
-.lotus-petal:nth-child(4) {
-  transform: rotate(216deg) translateY(-50px);
-}
-.lotus-petal:nth-child(5) {
-  transform: rotate(288deg) translateY(-50px);
-}
-
-.auth-card {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+  padding: 1rem;
   position: relative;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-xl);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
+}
+
+/* Reusable Form Container */
+.auth-card {
   width: 100%;
   max-width: 500px;
-  animation: cardSlideIn 0.8s ease-out;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  animation: slideInUp 0.6s ease-out;
 }
 
+/* Reusable Animation */
+@keyframes slideInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header Section */
 .auth-header {
   text-align: center;
-  padding: var(--spacing-2xl) var(--spacing-2xl) var(--spacing-lg);
-  background: linear-gradient(
-    135deg,
-    var(--primary-50) 0%,
-    var(--secondary-50) 100%
-  );
+  padding: 2rem 2rem 1rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #dcfce7 100%);
 }
 
-.logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--spacing-lg);
-}
-
-.lotus-logo {
-  position: relative;
-  width: 60px;
-  height: 60px;
-  animation: logoRotate 8s linear infinite;
-}
-
-.lotus-petal-small {
-  position: absolute;
-  width: 12px;
-  height: 24px;
-  background: linear-gradient(45deg, var(--primary-500), var(--primary-600));
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  transform-origin: center bottom;
-  animation: petalPulse 2s ease-in-out infinite;
-  animation-delay: calc(var(--petal-index) * 0.1s);
-}
-
-.lotus-petal-small:nth-child(1) {
-  transform: rotate(0deg) translateY(-20px);
-}
-.lotus-petal-small:nth-child(2) {
-  transform: rotate(72deg) translateY(-20px);
-}
-.lotus-petal-small:nth-child(3) {
-  transform: rotate(144deg) translateY(-20px);
-}
-.lotus-petal-small:nth-child(4) {
-  transform: rotate(216deg) translateY(-20px);
-}
-.lotus-petal-small:nth-child(5) {
-  transform: rotate(288deg) translateY(-20px);
-}
-
+/* Modern Typography Hierarchy */
 .auth-header h1 {
-  margin: 0 0 var(--spacing-sm) 0;
+  margin: 0 0 0.75rem 0;
+  font-size: 2.25rem; /* 36px - More impactful */
+  font-weight: 800; /* Extra bold for prominence */
+  line-height: 1.2; /* Tighter line height for better proportion */
+  letter-spacing: -0.025em; /* Slight negative letter spacing for modern look */
   color: var(--neutral-900);
-  font-size: 28px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: titleGlow 2s ease-in-out infinite alternate;
 }
 
 .auth-header p {
   margin: 0;
+  font-size: 1.125rem; /* 18px - Larger for better readability */
+  font-weight: 500; /* Medium weight for professional look */
+  line-height: 1.4; /* Optimized line height */
   color: var(--neutral-700);
-  font-size: 16px;
-  font-weight: 400;
+  opacity: 0.9;
 }
 
+/* Tab Styling - Force Material Design Colors */
 .auth-tabs {
-  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+  padding: 0 2rem 2rem;
 }
 
+/* Modern Tab Typography */
+.auth-tabs .mat-mdc-tab {
+  color: var(--neutral-800) !important;
+  --mdc-tab-text-label-text-color: var(--neutral-600) !important;
+  font-size: 1rem !important; /* 16px - Standard readable size */
+  font-weight: 600 !important; /* Semi-bold for clarity */
+  letter-spacing: 0.025em !important; /* Slight spacing for readability */
+  text-transform: none !important;
+  padding: 16px 24px !important;
+}
+
+.auth-tabs .mat-mdc-tab .mat-mdc-tab-label {
+  color: var(--neutral-800) !important;
+  font-weight: 600 !important;
+}
+
+.auth-tabs .mat-mdc-tab .mdc-tab__text-label {
+  color: var(--neutral-800) !important;
+  font-weight: 600 !important;
+}
+
+.auth-tabs .mat-mdc-tab.mdc-tab--active {
+  color: var(--primary-700) !important;
+  /* --mdc-tab-text-label-text-color: var(--primary-700) !important; */
+  font-weight: 700 !important; /* Bold for active state */
+}
+
+.auth-tabs .mat-mdc-tab.mdc-tab--active .mat-mdc-tab-label {
+  color: var(--primary-700) !important;
+  font-weight: 700 !important;
+}
+
+.auth-tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--primary-700) !important;
+  font-weight: 700 !important;
+}
+
+/* Form Content */
 .tab-content {
-  padding: var(--spacing-lg) 0;
+  padding: 1.5rem 0;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 1.5rem;
 }
 
 .name-fields {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 1rem;
 }
 
 .half-width {
@@ -173,67 +127,72 @@
   width: 100%;
 }
 
+/* Enhanced Form Field Typography */
+.mat-mdc-form-field {
+  margin-bottom: 1rem; /* Increased spacing for better breathing room */
+}
+
+/* Form label styling - Lighter and Crisper */
+.mat-mdc-form-field .mat-mdc-floating-label {
+  font-size: 0.9375rem !important; /* 15px - Slightly smaller for crisp look */
+  font-weight: 400 !important; /* Regular weight - very light */
+  letter-spacing: 0.01em !important;
+}
+
+/* Input text styling - using global styles with typography overrides */
+.mat-mdc-form-field .mat-mdc-input-element {
+  font-size: 1rem !important; /* 16px - Readable size */
+  font-weight: 400 !important; /* Regular weight for input text */
+  line-height: 1.5 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Placeholder styling */
+.mat-mdc-form-field .mat-mdc-input-element::placeholder {
+  font-size: 0.9375rem !important; /* 15px - Slightly smaller than input */
+  font-weight: 400 !important; /* Regular weight for placeholders */
+  /* Opacity controlled by global styles */
+}
+
+/* Form Options */
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: var(--spacing-sm) 0;
+  margin: 0.5rem 0;
 }
 
-.forgot-password {
-  color: var(--primary-600);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color var(--transition-fast);
-}
+/* Links - use Material Design defaults */
 
-.forgot-password:hover {
-  color: var(--primary-700);
-  text-decoration: underline;
-}
-
-.terms-link {
-  color: var(--primary-600);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color var(--transition-fast);
-}
-
-.terms-link:hover {
-  color: var(--primary-700);
-  text-decoration: underline;
-}
-
+/* Enhanced Button Typography */
 .submit-button {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: var(--spacing-sm);
-  border-radius: var(--radius-lg);
+  height: 52px; /* Slightly taller for better proportion */
+  font-size: 1.0625rem; /* 17px - Slightly larger for prominence */
+  font-weight: 700; /* Bold for action buttons */
+  margin-top: 1rem; /* Increased spacing */
+  border-radius: 12px; /* More modern rounded corners */
   text-transform: none;
-  letter-spacing: 0.5px;
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-normal);
+  letter-spacing: 0.02em; /* Optimized letter spacing */
+  line-height: 1.2;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  color: white !important;
 }
 
 .submit-button:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .submit-button:active {
   transform: translateY(0);
 }
 
-.submit-button mat-icon {
-  margin-right: var(--spacing-sm);
-}
-
+/* Divider */
 .divider {
   display: flex;
   align-items: center;
-  margin: var(--spacing-xl) 0;
+  margin: 2rem 0;
   position: relative;
 }
 
@@ -242,157 +201,79 @@
   content: "";
   flex: 1;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--neutral-300),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, #e5e5e5, transparent);
 }
 
 .divider span {
-  padding: 0 var(--spacing-lg);
-  color: var(--neutral-500);
-  font-size: 14px;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius-md);
+  padding: 0 1.5rem;
+  color: var(--neutral-600);
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600; /* Semi-bold for better visibility */
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  letter-spacing: 0.025em;
 }
 
+/* Enhanced Google Auth Button Typography */
 .google-auth-button {
   width: 100%;
-  height: 48px;
-  border-radius: var(--radius-lg);
-  font-weight: 500;
+  height: 50px; /* Slightly taller for better proportion */
+  border-radius: 12px; /* Match submit button styling */
+  font-size: 1rem; /* 16px - Standard readable size */
+  font-weight: 600; /* Semi-bold for clarity */
   text-transform: none;
-  letter-spacing: 0.5px;
-  transition: all var(--transition-normal);
-  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.02em; /* Optimized letter spacing */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--neutral-700) !important;
 }
 
 .google-auth-button:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.google-auth-button mat-icon {
-  margin-right: var(--spacing-sm);
-}
-
+/* Password Toggle */
 .password-toggle {
   cursor: pointer;
-  color: var(--neutral-700);
-  transition: color var(--transition-fast);
+  transition: color 0.2s ease;
 }
 
-.password-toggle:hover {
-  color: var(--neutral-900);
-}
-
+/* Error Styling */
 mat-error {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
-.mat-mdc-form-field {
-  margin-bottom: var(--spacing-sm);
-}
-
-/* Enhanced Form Field Styling for Auth Component */
-.mat-mdc-form-field .mat-mdc-input-element {
-  color: var(--neutral-900) !important;
-  font-weight: 500;
-  font-size: 16px;
-}
-
-.mat-mdc-form-field .mat-mdc-input-element::placeholder {
-  color: var(--neutral-700) !important;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.mat-mdc-form-field .mat-mdc-input-element:hover {
-  color: var(--neutral-900) !important;
-}
-
-.mat-mdc-form-field .mat-mdc-form-field-label {
-  color: var(--neutral-900) !important;
-  font-weight: 700;
-}
-
-.mat-mdc-form-field.mat-focused .mat-mdc-form-field-label {
-  color: var(--primary-700) !important;
-  font-weight: 800;
-}
-
-.mat-mdc-form-field:hover .mat-mdc-form-field-label {
-  color: var(--neutral-900) !important;
-}
-
-/* Tab Styling for Auth Component - using shared styles */
-.auth-tabs .mat-mdc-tab {
-  color: var(--neutral-900) !important;
-  font-weight: 700 !important;
-  font-size: 18px;
-  --mdc-tab-text-label-text-color: var(--neutral-900) !important;
-}
-
-.auth-tabs .mat-mdc-tab.mdc-tab--active {
-  color: var(--primary-600) !important;
-  font-weight: 800 !important;
-  --mdc-tab-text-label-text-color: var(--primary-600) !important;
-  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  position: relative;
-}
-
-.auth-tabs .mat-mdc-tab.mdc-tab--active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
-  border-radius: 2px 2px 0 0;
-}
-
-.auth-tabs .mat-mdc-tab:hover {
-  color: var(--primary-800) !important;
-  --mdc-tab-text-label-text-color: var(--primary-800) !important;
-  background: var(--primary-50);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
-
-/* Signup/Login Links */
+/* Links */
 .signup-link,
 .login-link {
   text-align: center;
-  margin-top: var(--spacing-xl);
+  margin-top: 2rem;
 }
 
+/* Enhanced Link Typography */
 .signup-link p,
 .login-link p {
-  color: var(--neutral-900);
-  font-size: 14px;
+  font-size: 0.9375rem; /* 15px - Slightly larger for better readability */
   margin: 0;
-  font-weight: 600;
+  font-weight: 500; /* Medium weight for body text */
+  line-height: 1.6; /* Better line height for reading */
+  color: var(--neutral-700);
 }
 
 .signup-link .link,
 .login-link .link {
-  color: var(--primary-700);
   cursor: pointer;
   text-decoration: none;
-  font-weight: 700;
-  transition: all var(--transition-fast);
+  font-weight: 700; /* Bold for action links */
+  font-size: 0.9375rem; /* 15px - Match parent text */
+  transition: all 0.2s ease;
   position: relative;
-}
-
-.signup-link .link:hover,
-.login-link .link:hover {
-  color: var(--primary-800);
-  text-decoration: none;
+  line-height: 1.25;
+  color: var(--primary-700);
+  letter-spacing: 0.01em; /* Slight letter spacing */
 }
 
 .signup-link .link::after,
@@ -403,8 +284,8 @@ mat-error {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--primary-600), var(--primary-700));
-  transition: width var(--transition-fast);
+  background: linear-gradient(90deg, #0ea5e9, #0369a1);
+  transition: width 0.2s ease;
 }
 
 .signup-link .link:hover::after,
@@ -412,117 +293,94 @@ mat-error {
   width: 100%;
 }
 
-/* Animations */
-@keyframes lotusFloat {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-20px) rotate(5deg);
-  }
-}
-
-@keyframes petalGrow {
-  0%,
-  100% {
-    transform: rotate(calc(var(--petal-index) * 72deg)) translateY(-50px)
-      scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: rotate(calc(var(--petal-index) * 72deg)) translateY(-60px)
-      scale(1.1);
-    opacity: 1;
-  }
-}
-
-@keyframes petalPulse {
-  0%,
-  100% {
-    transform: rotate(calc(var(--petal-index) * 72deg)) translateY(-20px)
-      scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: rotate(calc(var(--petal-index) * 72deg)) translateY(-25px)
-      scale(1.2);
-    opacity: 1;
-  }
-}
-
-@keyframes logoRotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes titleGlow {
-  0% {
-    filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 15px rgba(14, 165, 233, 0.6));
-  }
-}
-
-@keyframes cardSlideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(50px) scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Responsive Design */
+/* Enhanced Responsive Typography */
 @media (max-width: 768px) {
   .auth-container {
-    padding: var(--spacing-md);
+    padding: 1rem;
   }
 
   .auth-card {
-    margin: var(--spacing-sm);
+    margin: 0.5rem;
     max-width: 100%;
   }
 
+  /* Mobile header typography */
   .auth-header h1 {
-    font-size: 24px;
+    font-size: 1.875rem; /* 30px - Better proportion for mobile */
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
-  .lotus-container {
-    width: 200px;
-    height: 200px;
+  .auth-header p {
+    font-size: 1rem; /* 16px - Standard mobile size */
+    font-weight: 500;
+    line-height: 1.4;
   }
 
-  .lotus-petal {
-    width: 40px;
-    height: 80px;
+  /* Mobile tab typography */
+  .auth-tabs .mat-mdc-tab {
+    font-size: 0.9375rem !important; /* 15px */
+    font-weight: 600 !important;
+    padding: 12px 20px !important;
+  }
+
+  /* Mobile form typography */
+  .mat-mdc-form-field .mat-mdc-input-element {
+    font-size: 1rem !important; /* 16px - Prevent zoom on iOS */
+  }
+
+  .auth-form {
+    gap: 1rem;
+  }
+
+  .submit-button {
+    height: 48px; /* Better touch target */
+    font-size: 1rem; /* 16px - Standard mobile button */
+    font-weight: 700;
+  }
+
+  .google-auth-button {
+    font-size: 0.9375rem; /* 15px */
+    font-weight: 600;
   }
 }
 
 @media (max-width: 600px) {
   .auth-header {
-    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-md);
+    padding: 1.5rem 1rem 1rem;
   }
 
   .auth-tabs {
-    padding: 0 var(--spacing-lg) var(--spacing-xl);
+    padding: 0 1rem 1.5rem;
   }
 
   .name-fields {
     flex-direction: column;
-    gap: 0;
+    gap: 0.5rem;
   }
 
   .form-options {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-md);
+    gap: 1rem;
+  }
+
+  .auth-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .auth-tabs .mat-mdc-tab {
+    font-size: 1rem;
+  }
+
+  .submit-button {
+    height: 40px;
+    font-size: 0.875rem;
+  }
+
+  .google-auth-button {
+    height: 40px;
+    font-size: 0.875rem;
   }
 }
